@@ -1,0 +1,30 @@
+# Web Scraping
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+tqdm>=4.66.0
+
+# Data Processing
+pandas>=2.1.0
+numpy>=1.24.0
+duckdb>=0.9.0
+
+# Analysis and Visualization
+matplotlib>=3.8.0
+seaborn>=0.13.0
+jupyter>=1.0.0
+
+# Development Tools
+python-dotenv>=1.0.0
+black>=23.10.0
+pylint>=3.0.0
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+
+# Optional Data Processing
+openpyxl>=3.1.0  # For Excel file support
+python-dateutil>=2.8.2
+
+# Logging and Debugging
+logging>=0.5.0
