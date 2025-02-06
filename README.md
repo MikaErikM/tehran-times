@@ -27,7 +27,7 @@ tehran-times-analysis/
 │   │   └── articles.csv            # Processed article data
 │   └── state/                      # Crawler state files
 ├── notebooks/                      # Analysis notebooks
-│   ├── 00_data_overview.ipynb     # Data exploration and quality checks
+│   ├── 00_data_overview.ipynb      # Data exploration and quality checks
 │   ├── 01_temporal_analysis.ipynb  # Time-based patterns and trends
 │   ├── 02_content_analysis.ipynb   # Text analysis and topic modeling
 │   └── 03_category_analysis.ipynb  # Category and tag analysis
@@ -80,8 +80,8 @@ Articles are stored in a semicolon-separated CSV with the following columns:
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/mikaerikm/tehran-times-analysis.git
-cd tehran-times-analysis
+git clone https://github.com/mikaerikm/tehran-times.git
+cd tehran-times
 ```
 
 2. Create and activate a virtual environment:
