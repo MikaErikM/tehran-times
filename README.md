@@ -1,7 +1,14 @@
-# Tehran Times News Analysis Project
+# Tehran Times Project
 
 ## Project Overview
-A comprehensive pipeline for scraping, processing, and analyzing news articles from the Tehran Times website. This project includes tools for data collection, processing, and analysis with a focus on maintainability and data integrity.
+
+This project provides a comprehensive data pipeline for collecting and analyzing articles from Tehran Times ([tehrantimes.com](https://tehrantimes.com)), an Iranian English-language newspaper. The pipeline includes:
+
+* Automated archive crawling and content extraction
+* Data processing and standardization
+* Content analysis capabilities
+
+The current analysis focuses on temporal patterns in keyword frequencies, with plans for expansion into more advanced natural language processing techniques.
 
 ## Project Structure
 ```
@@ -23,8 +30,7 @@ tehran-times-analysis/
 │   ├── 00_data_overview.ipynb     # Data exploration and quality checks
 │   ├── 01_temporal_analysis.ipynb  # Time-based patterns and trends
 │   ├── 02_content_analysis.ipynb   # Text analysis and topic modeling
-│   ├── 03_category_analysis.ipynb  # Category and tag analysis
-│   └── 04_network_analysis.ipynb   # Article relationships analysis
+│   └── 03_category_analysis.ipynb  # Category and tag analysis
 └── logs/                           # Log files
     ├── crawler/                    # Crawler logs
     └── processor/                  # Processor logs
@@ -68,13 +74,13 @@ Articles are stored in a semicolon-separated CSV with the following columns:
 - image_url: Comma-separated list of image URLs
 - author: Article author (if available)
 - download_timestamp: When the article was scraped
-- source: Always "tehrantimes"
+- source: Always "tehrantimes" #Relevant for later comparison with other state media outlets
 
 ## Installation
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/tehran-times-analysis.git
+git clone https://github.com/mikaerikm/tehran-times-analysis.git
 cd tehran-times-analysis
 ```
 
@@ -122,12 +128,6 @@ jupyter lab
    - `01_temporal_analysis.ipynb`: Time-based patterns and trends
    - `02_content_analysis.ipynb`: Text analysis and topic modeling
    - `03_category_analysis.ipynb`: Category and tag analysis
-   - `04_network_analysis.ipynb`: Article relationships and networks
-
-## Configuration
-The project uses configuration files in the `config/` directory:
-- `crawler_config.json`: Crawler settings (rate limits, retry parameters)
-- `processor_config.json`: Data processing settings (CSV format, field mappings)
 
 ## State Management
 The crawler maintains state in JSON files under `data/state/`:
