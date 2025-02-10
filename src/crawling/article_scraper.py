@@ -20,7 +20,7 @@ import time
 import random
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Optional, Set, Union
 from dataclasses import dataclass
 from enum import Enum
 
@@ -29,6 +29,15 @@ from bs4 import BeautifulSoup
 from pydantic import BaseModel, Field, validator
 from tqdm import tqdm
 from urllib.parse import urljoin
+
+# Constants
+STATE_DIR_NAME = "state"
+RESULTS_DIR_NAME = "results"
+LOGS_DIR_NAME = "logs"
+STATE_FILE_NAME = "crawler_state.json"
+URLS_FILE_NAME = "urls_state.json"
+IMAGES_FILE_NAME = "images_state.json"
+ARTICLE_OUTPUT_FILENAME = "{date}_articles.json"
 
 # Data Models
 @dataclass
@@ -75,7 +84,7 @@ class ArticleSchema(BaseModel):
     download_timestamp: str
 
     @validator('download_timestamp')
-    def validate_timestamp(cls, v):
+    def validate_timestamp(cls, v: str) -> str:
         """Ensure timestamp is in ISO format."""
         try:
             datetime.fromisoformat(v)
@@ -85,22 +94,22 @@ class ArticleSchema(BaseModel):
 
 class StateManager:
     """Manages crawler state using JSON files."""
-    
+
     def __init__(self, state_dir: Path):
-        self.state_dir = state_dir
+        self.state_dir: Path = state_dir
         self.state_dir.mkdir(parents=True, exist_ok=True)
-        self.state_file = state_dir / 'crawler_state.json'
-        self.urls_file = state_dir / 'urls_state.json'
-        self.images_file = state_dir / 'images_state.json'
+        self.state_file: Path = state_dir / STATE_FILE_NAME
+        self.urls_file: Path = state_dir / URLS_FILE_NAME
+        self.images_file: Path = state_dir / IMAGES_FILE_NAME
         self._init_state_files()
 
-    def _init_state_files(self):
+    def _init_state_files(self) -> None:
         """Initialize state files if they don't exist."""
         for file_path in [self.state_file, self.urls_file, self.images_file]:
             if not file_path.exists():
                 self._save_json(file_path, {})
 
-    def _save_json(self, file_path: Path, data: dict):
+    def _save_json(self, file_path: Path, data: dict) -> None:
         """Save JSON with atomic write."""
         temp_file = file_path.with_suffix('.tmp')
         try:
@@ -112,9 +121,9 @@ class StateManager:
             if temp_file.exists():
                 temp_file.unlink()
 
-    def update_url_status(self, url: str, status: ScrapingStatus, error: Optional[str] = None):
+    def update_url_status(self, url: str, status: ScrapingStatus, error: Optional[str] = None) -> None:
         """Update URL processing status."""
-        urls_state = self._load_state(self.urls_file)
+        urls_state: Dict[str, Dict[str, Union[str, None]]] = self._load_state(self.urls_file)
         urls_state[url] = {
             'last_attempt': datetime.now().isoformat(),
             'status': status.value,
@@ -122,16 +131,16 @@ class StateManager:
         }
         self._save_json(self.urls_file, urls_state)
 
-    def track_image(self, image_url: str, article_url: str):
+    def track_image(self, image_url: str, article_url: str) -> None:
         """Track image URL and its article association."""
-        images_state = self._load_state(self.images_file)
+        images_state: Dict[str, Dict[str, str]] = self._load_state(self.images_file)
         images_state[image_url] = {
             'article_url': article_url,
             'found_date': datetime.now().isoformat()
         }
         self._save_json(self.images_file, images_state)
 
-    def _load_state(self, file_path: Path) -> dict:
+    def _load_state(self, file_path: Path) -> Dict:
         """Load state file with error handling."""
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
@@ -142,35 +151,35 @@ class StateManager:
 
 class TehranTimesCrawler:
     """Main crawler implementation."""
-    
+
     def __init__(self, input_dir: str, output_dir: str, debug: bool = False):
-        self.input_dir = Path(input_dir)
-        self.output_dir = Path(output_dir)
-        self.debug = debug
-        
+        self.input_dir: Path = Path(input_dir)
+        self.output_dir: Path = Path(output_dir)
+        self.debug: bool = debug
+
         # Initialize directories
-        self.state_dir = self.output_dir / 'state'
-        self.results_dir = self.output_dir / 'results'
-        self.logs_dir = self.output_dir / 'logs'
+        self.state_dir: Path = self.output_dir / STATE_DIR_NAME
+        self.results_dir: Path = self.output_dir / RESULTS_DIR_NAME
+        self.logs_dir: Path = self.output_dir / LOGS_DIR_NAME
         for directory in [self.state_dir, self.results_dir, self.logs_dir]:
             directory.mkdir(parents=True, exist_ok=True)
 
         # Initialize components
-        self.state_manager = StateManager(self.state_dir)
-        
+        self.state_manager: StateManager = StateManager(self.state_dir)
+
         # Setup logging
         self._setup_logging()
-        
+
         # Request configuration
-        self.headers = {
+        self.headers: Dict[str, str] = {
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9',
             'Accept-Language': 'en-US,en;q=0.9'
         }
 
-    def _setup_logging(self):
+    def _setup_logging(self) -> None:
         """Configure logging with rotation."""
-        log_file = self.logs_dir / f'crawler_{datetime.now():%Y%m%d_%H%M%S}.log'
+        log_file: Path = self.logs_dir / f'crawler_{datetime.now():%Y%m%d_%H%M%S}.log'
         logging.basicConfig(
             filename=log_file,
             level=logging.DEBUG if self.debug else logging.INFO,
@@ -179,14 +188,14 @@ class TehranTimesCrawler:
 
     def analyze_dates(self) -> DateRange:
         """Analyze date coverage of articles."""
-        dates_articles = {}
-        all_dates = set()
-        
+        dates_articles: Dict[str, int] = {}
+        all_dates: Set[datetime] = set()
+
         for json_file in self.input_dir.glob('*.json'):
             try:
-                data = json.loads(json_file.read_text(encoding='utf-8'))
-                date = datetime.strptime(data['date'], '%Y-%m-%d')
-                article_count = len(data['articles'])
+                data: Dict = json.loads(json_file.read_text(encoding='utf-8'))
+                date: datetime = datetime.strptime(data['date'], '%Y-%m-%d')
+                article_count: int = len(data['articles'])
                 dates_articles[date.strftime('%Y-%m-%d')] = article_count
                 all_dates.add(date)
             except Exception as e:
@@ -195,18 +204,18 @@ class TehranTimesCrawler:
         if not all_dates:
             raise ValueError("No valid dates found")
 
-        min_date = min(all_dates)
-        max_date = max(all_dates)
-        
-        expected_dates = {
+        min_date: datetime = min(all_dates)
+        max_date: datetime = max(all_dates)
+
+        expected_dates: Set[datetime] = {
             min_date + timedelta(days=x)
             for x in range((max_date - min_date).days + 1)
         }
-        
+
         return DateRange(
             start_date=min_date,
             end_date=max_date,
-            missing_dates=sorted(expected_dates - all_dates),
+            missing_dates=sorted(list(expected_dates - all_dates)),  # Convert set to list for sorting
             total_articles=sum(dates_articles.values()),
             date_distribution=dates_articles
         )
@@ -215,11 +224,11 @@ class TehranTimesCrawler:
         """Extract content from article page."""
         try:
             text_div = soup.select_one('.item-text')
-            main_text = ' '.join(
+            main_text: str = ' '.join(
                 text for text in text_div.stripped_strings
             ) if text_div else ''
 
-            content = {
+            content: Dict[str, Union[str, List[str]]] = {
                 'url': link_info.url,
                 'first_seen_date': link_info.first_seen_date,
                 'original_title': link_info.title,
@@ -245,11 +254,11 @@ class TehranTimesCrawler:
 
     def _extract_images(self, soup: BeautifulSoup, article_url: str) -> List[str]:
         """Extract and track image URLs."""
-        images = []
+        images: List[str] = []
         for img in soup.find_all('img'):
             src = img.get('src')
             if src:
-                full_url = urljoin(article_url, src)
+                full_url: str = urljoin(article_url, src)
                 images.append(full_url)
                 self.state_manager.track_image(full_url, article_url)
         return images
@@ -257,18 +266,18 @@ class TehranTimesCrawler:
     def process_article(self, link_info: LinkInfo) -> Optional[Dict]:
         """Process a single article."""
         try:
-            response = requests.get(
+            response: requests.Response = requests.get(
                 link_info.url,
                 headers=self.headers,
                 timeout=30
             )
             response.raise_for_status()
-            
-            content = self._extract_article_content(
+
+            content: Optional[Dict] = self._extract_article_content(
                 BeautifulSoup(response.text, 'html.parser'),
                 link_info
             )
-            
+
             if content:
                 self.state_manager.update_url_status(
                     link_info.url,
@@ -277,7 +286,7 @@ class TehranTimesCrawler:
                 return content
             else:
                 raise Exception("Failed to extract content")
-                
+
         except Exception as e:
             logging.error(f"Failed to process {link_info.url}: {e}")
             self.state_manager.update_url_status(
@@ -287,33 +296,33 @@ class TehranTimesCrawler:
             )
             return None
 
-    def save_article(self, article: Dict):
+    def save_article(self, article: Dict) -> None:
         """Save processed article."""
-        date = datetime.fromisoformat(article['first_seen_date']).strftime('%Y-%m-%d')
-        output_file = self.results_dir / f"{date}_articles.json"
-        
-        existing_articles = []
+        date_str: str = datetime.fromisoformat(article['first_seen_date']).strftime('%Y-%m-%d')
+        output_file: Path = self.results_dir / ARTICLE_OUTPUT_FILENAME.format(date=date_str)
+
+        existing_articles: List[Dict] = []
         if output_file.exists():
             try:
                 with open(output_file, 'r', encoding='utf-8') as f:
                     existing_articles = json.load(f)
             except json.JSONDecodeError:
-                logging.error(f"Error loading existing articles for {date}")
+                logging.error(f"Error loading existing articles for {date_str}")
 
         # Update or append article
-        article_index = next(
+        article_index: Optional[int] = next(
             (i for i, a in enumerate(existing_articles)
              if a['url'] == article['url']),
             None
         )
-        
+
         if article_index is not None:
             existing_articles[article_index] = article
         else:
             existing_articles.append(article)
 
         # Save updated articles
-        temp_file = output_file.with_suffix('.tmp')
+        temp_file: Path = output_file.with_suffix('.tmp')
         try:
             with open(temp_file, 'w', encoding='utf-8') as f:
                 json.dump(existing_articles, f, indent=2, ensure_ascii=False)
@@ -322,38 +331,37 @@ class TehranTimesCrawler:
             logging.error(f"Error saving article: {e}")
             if temp_file.exists():
                 temp_file.unlink()
-
-    def run(self):
+    def run(self) -> None:
         """Run the crawler."""
         try:
-            date_range = self.analyze_dates()
+            date_range: DateRange = self.analyze_dates()
             logging.info(
                 f"Processing articles from "
                 f"{date_range.start_date.strftime('%Y-%m-%d')} to "
                 f"{date_range.end_date.strftime('%Y-%m-%d')}"
             )
-            
+
             for json_file in tqdm(list(self.input_dir.glob('*.json')), desc="Processing files"):
                 try:
                     with open(json_file, 'r', encoding='utf-8') as f:
-                        data = json.load(f)
-                    
+                        data: Dict = json.load(f)
+
                     for article_data in tqdm(data['articles'], desc=f"Processing {json_file.name}", leave=False):
-                        link_info = LinkInfo(
+                        link_info: LinkInfo = LinkInfo(
                             url=article_data['link'],
                             first_seen_date=data['date'],
                             title=article_data.get('title', ''),
                             intro=article_data.get('intro', ''),
                             time_published=article_data.get('time_published', '')
                         )
-                        
-                        content = self.process_article(link_info)
+
+                        content: Optional[Dict] = self.process_article(link_info)
                         if content:
                             self.save_article(content)
-                        
+
                         # Rate limiting
                         time.sleep(random.uniform(1, 2))
-                        
+
                 except Exception as e:
                     logging.error(f"Error processing {json_file}: {e}")
                     if self.debug:
@@ -366,39 +374,39 @@ class TehranTimesCrawler:
             logging.error(f"Fatal error: {e}")
             raise
 
-def main():
+def main() -> None:
     """Command-line interface."""
     parser = argparse.ArgumentParser(
         description='Tehran Times Article Crawler',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
-    
+
     parser.add_argument(
         '--input',
         required=True,
         help='Input directory containing article JSON files'
     )
-    
+
     parser.add_argument(
         '--output',
         required=True,
         help='Output directory for crawled content'
     )
-    
+
     parser.add_argument(
         '--debug',
         action='store_true',
         help='Enable debug mode'
     )
-    
-    args = parser.parse_args()
-    
-    crawler = TehranTimesCrawler(
+
+    args: argparse.Namespace = parser.parse_args()
+
+    crawler: TehranTimesCrawler = TehranTimesCrawler(
         args.input,
         args.output,
         args.debug
     )
-    
+
     crawler.run()
 
 if __name__ == "__main__":
