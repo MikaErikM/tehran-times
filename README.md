@@ -1,16 +1,32 @@
 # Tehran Times Project
 
+[![Build Status](https://github.com/mikaerikm/tehran-times/actions/workflows/main.yml/badge.svg)](https://github.com/mikaerikm/tehran-times/actions/workflows/main.yml)  <!-- Replace with your actual badge -->
+[![Coverage Status](https://coveralls.io/repos/github/mikaerikm/tehran-times/badge.svg?branch=main)](https://coveralls.io/github/mikaerikm/tehran-times?branch=main)  <!-- Replace with your actual badge -->
+
+## Table of Contents
+
+*   [Project Overview](#project-overview)
+*   [Project Structure](#project-structure)
+*   [Data Formats](#data-formats)
+*   [Installation](#installation)
+*   [Usage](#usage)
+*   [State Management](#state-management)
+*   [Logging](#logging)
+*   [Data Attribution](#data-attribution)
+*   [Future Work](#future-work)
+
 ## Project Overview
 
 This project provides a comprehensive data pipeline for collecting and analyzing articles from Tehran Times ([tehrantimes.com](https://tehrantimes.com)), an Iranian English-language newspaper. The pipeline includes:
 
-* Automated archive crawling and content extraction
-* Data processing and standardization
-* Content analysis capabilities
+*   Automated archive crawling and content extraction
+*   Data processing and standardization
+*   Content analysis capabilities
 
-The current analysis focuses on temporal patterns in keyword frequencies, with plans for expansion into more advanced natural language processing techniques.
+The current analysis focuses on temporal patterns in keyword frequencies, with plans for expansion into more advanced natural language processing techniques. This project is part of ongoing research.
 
 ## Project Structure
+
 ```
 tehran-times-analysis/
 ├── src/
@@ -30,7 +46,7 @@ tehran-times-analysis/
 │   ├── 00_data_overview.ipynb      # Data exploration and quality checks
 │   ├── 01_temporal_analysis.ipynb  # Time-based patterns and trends
 │   ├── 02_content_analysis.ipynb   # Text analysis and topic modeling
-│   └── 03_category_analysis.ipynb  # Category and tag analysis
+│   ├── 03_category_analysis.ipynb  # Category and tag analysis
 └── logs/                           # Log files
     ├── crawler/                    # Crawler logs
     └── processor/                  # Processor logs
@@ -39,7 +55,9 @@ tehran-times-analysis/
 ## Data Formats
 
 ### Raw Data (JSON)
+
 Articles are stored in JSON format with the following structure:
+
 ```json
 {
     "url": "article_url",
@@ -60,85 +78,112 @@ Articles are stored in JSON format with the following structure:
 ```
 
 ### Processed Data (CSV)
+
 Articles are stored in a semicolon-separated CSV with the following columns:
-- url: Article URL
-- first_seen_date: Date article was first discovered
-- title: Article title
-- subtitle: Article subtitle/introduction
-- summary: Article summary
-- body: Main article content
-- category: Article category
-- published_date: Original publication date
-- modified_date: Last modification date
-- tags: Comma-separated list of tags
-- image_url: Comma-separated list of image URLs
-- author: Article author (if available)
-- download_timestamp: When the article was scraped
-- source: Always "tehrantimes" #Relevant for later comparison with other state media outlets
+
+*   url: Article URL
+*   first_seen_date: Date article was first discovered
+*   title: Article title
+*   subtitle: Article subtitle/introduction
+*   summary: Article summary
+*   body: Main article content
+*   category: Article category
+*   published_date: Original publication date
+*   modified_date: Last modification date
+*   tags: Comma-separated list of tags
+*   image_url: Comma-separated list of image URLs
+*   author: Article author (if available)
+*   download_timestamp: When the article was scraped
+*   source: Always "tehrantimes" #Relevant for later comparison with other state media outlets
 
 ## Installation
 
-1. Clone the repository:
-```bash
-git clone https://github.com/mikaerikm/tehran-times.git
-cd tehran-times
-```
+1.  Clone the repository:
 
-2. Create and activate a virtual environment:
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows use: venv\Scripts\activate
-```
+    ```bash
+    git clone https://github.com/mikaerikm/tehran-times.git
+    cd tehran-times
+    ```
 
-3. Install required packages:
-```bash
-pip install -r requirements.txt
-```
+2.  Create and activate a virtual environment:
+
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows use: venv\Scripts\activate
+    ```
+
+3.  Install required packages:
+
+    ```bash
+    pip install -r requirements.txt
+    ```
 
 ## Usage
 
 ### Crawling Articles
+
 ```bash
 # Crawl archive pages
-python src/crawling/archive_crawler.py --output data/raw/archives
+# This command fetches the list of articles from the Tehran Times archive
+# for a specified date range and saves the results to JSON files.
+python src/crawling/archive_crawler.py --output data/raw/archives --debug
 
 # Extract article content
+# This command retrieves the full text of articles listed in the archive
+# JSON files and saves the extracted content to separate JSON files.
 python src/crawling/article_extractor.py \
     --input data/raw/archives \
-    --output data/raw/articles
+    --output data/raw/articles \
+    --debug
 ```
 
 ### Processing Data
+
 ```bash
+# Process the extracted article content and save it to a CSV file.
 python src/processing/data_processor.py \
     --input data/raw/articles \
     --output data/processed/articles.csv
 ```
 
 ### Running Analysis
+
 Analysis is performed through Jupyter notebooks for better interactivity and visualization:
 
-1. Start Jupyter Lab:
-```bash
-jupyter lab
-```
+1.  Start Jupyter Lab:
 
-2. Navigate to the `notebooks/` directory and choose the appropriate notebook:
-   - `00_data_overview.ipynb`: Initial data exploration and quality assessment
-   - `01_temporal_analysis.ipynb`: Time-based patterns and trends
-   - `02_content_analysis.ipynb`: Text analysis and topic modeling
-   - `03_category_analysis.ipynb`: Category and tag analysis
+    ```bash
+    jupyter lab
+    ```
+
+2.  Navigate to the `notebooks/` directory and choose the appropriate notebook:
+    *   `00_data_overview.ipynb`: Initial data exploration and quality assessment
+    *   `01_temporal_analysis.ipynb`: Time-based patterns and trends
+    *   `02_content_analysis.ipynb`: Text analysis and topic modeling
+    *   `03_category_analysis.ipynb`: Category and tag analysis
 
 ## State Management
+
 The crawler maintains state in JSON files under `data/state/`:
-- `urls_state.json`: URL processing status
-- `images_state.json`: Image tracking
-- `crawler_state.json`: General crawler state
+
+*   `urls_state.json`: URL processing status
+*   `images_state.json`: Image tracking
+*   `crawler_state.json`: General crawler state
 
 ## Logging
+
 Logs are organized by component:
-- Crawler logs: `logs/crawler/`
-- Processor logs: `logs/processor/`
+
+*   Crawler logs: `logs/crawler/`
+*   Processor logs: `logs/processor/`
 
 ## Data Attribution
-The news content analyzed in this project comes from Tehran Times, which is licensed under a Creative Commons Attribution 4.0 International License. This project is independent and not affiliated with or endorsed by Tehran Times.
+
+The news content analyzed in this project is sourced from [Tehran Times](https://www.tehrantimes.com/), which is licensed under a [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/). This project is an independent effort and is neither affiliated with nor endorsed by Tehran Times. We are grateful to Tehran Times for making their content available under this license.
+
+## Future Work
+
+*   Implement more advanced NLP techniques (e.g., sentiment analysis, entity recognition).
+*   Create a web interface for exploring the data.
+*   Add support for crawling other news sources.
+*   Integrate with a database for more efficient data storage.
