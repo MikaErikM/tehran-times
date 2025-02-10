@@ -1,7 +1,6 @@
 # Tehran Times Project
 
-[![Build Status](https://github.com/mikaerikm/tehran-times/actions/workflows/main.yml/badge.svg)](https://github.com/mikaerikm/tehran-times/actions/workflows/main.yml)  <!-- Replace with your actual badge -->
-[![Coverage Status](https://coveralls.io/repos/github/mikaerikm/tehran-times/badge.svg?branch=main)](https://coveralls.io/github/mikaerikm/tehran-times?branch=main)  <!-- Replace with your actual badge -->
+IN PROGRESS
 
 ## Table of Contents
 
@@ -179,11 +178,4 @@ Logs are organized by component:
 
 ## Data Attribution
 
-The news content analyzed in this project is sourced from [Tehran Times](https://www.tehrantimes.com/), which is licensed under a [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/). This project is an independent effort and is neither affiliated with nor endorsed by Tehran Times. We are grateful to Tehran Times for making their content available under this license.
-
-## Future Work
-
-*   Implement more advanced NLP techniques (e.g., sentiment analysis, entity recognition).
-*   Create a web interface for exploring the data.
-*   Add support for crawling other news sources.
-*   Integrate with a database for more efficient data storage.
+The news content analyzed in this project is sourced from [Tehran Times](https://www.tehrantimes.com/), which is licensed under a [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/). This project is an independent effort and is neither affiliated with nor endorsed by Tehran Times.
