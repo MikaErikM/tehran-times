@@ -1,6 +1,8 @@
-# Tehran Times Project
+# Tehran Times Analysis Project
 
-!IN PROGRESS!
+[Project Status](https://img.shields.io/badge/status-in%20development-yellow)
+
+A data pipeline and analysis toolkit for Tehran Times news articles.
 
 ## Table of Contents
 
@@ -47,7 +49,7 @@ tehran-times-analysis/
 │   ├── 01_temporal_analysis.ipynb  # Time-based patterns and trends
 │   ├── 02_content_analysis.ipynb   # Text analysis and topic modeling
 │   └── 03_category_analysis.ipynb  # Category and tag analysis
-└── logs/                          # Log files
+└── logs/                           # Log files
     ├── crawler/                    # Crawler logs
     └── processor/                  # Processor logs
 ```
