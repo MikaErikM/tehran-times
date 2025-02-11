@@ -1,3 +1,5 @@
+#src/crawling/article_scraper.py
+
 """Tehran Times Article Crawler and Analyzer.
 
 This module provides a comprehensive solution for crawling and analyzing

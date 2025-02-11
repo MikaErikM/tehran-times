@@ -1,3 +1,5 @@
+#src/processing/data_processor.py
+
 """Tehran Times Data Processor.
 
 This module converts raw JSON article data into structured CSV format.
