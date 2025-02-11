@@ -1,6 +1,6 @@
 # Tehran Times Analysis Project
 
-[Project Status](https://img.shields.io/badge/status-in%20development-yellow)
+![Project Status](https://img.shields.io/badge/status-in%20development-yellow)
 
 A data pipeline and analysis toolkit for Tehran Times news articles.
 
